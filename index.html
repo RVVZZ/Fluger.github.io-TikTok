@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RVVZ LOCKED</title>
+    <style>
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; margin: 0; padding: 0; }
+        
+        /* ФОН С ФУРРИ */
+        body, html { 
+            height: 100%; width: 100%; overflow: hidden; font-family: sans-serif; touch-action: none; position: fixed;
+            background: #000;
+        }
+        
+        /* Сама фурри на фоне (затемненная и нормального размера) */
+        .furry-bg {
+            position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 100vw; height: 100vh; 
+            object-fit: contain; 
+            opacity: 0.4; /* Сделал ее видимой, но не мешающей */
+            z-index: 0; 
+            pointer-events: none;
+            filter: grayscale(100%) contrast(150%);
+        }
+
+        .screen { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; background: rgba(0,0,0,0.6); }
+        .active { display: flex; }
+
+        /* --- ЭКРАН 1: Белый глаз --- */
+        #stage1 { background: transparent; }
+        .svg-eye {
+            width: 60vw; height: auto;
+            margin-bottom: 10vh;
+            filter: drop-shadow(0px 0px 15px rgba(255,255,255,0.1));
+            z-index: 2;
+        }
+        .glitch-text-1 {
+            color: #fff; font-size: 12vw; font-family: 'Impact', 'Arial Black', sans-serif;
+            text-transform: uppercase;
+            transform: scaleY(1.8) scaleX(0.9);
+            text-shadow: 4px 4px 0px #333, -2px -2px 0px #666;
+            letter-spacing: 1vw;
+            animation: glitch 0.15s infinite;
+            z-index: 2;
+            text-align: center;
+        }
+
+        /* --- ЭКРАН 2: Терминал --- */
+        #stage2 { background: rgba(0,0,0,0.9); align-items: flex-start; justify-content: flex-start; padding-top: 10vh; padding-left: 5vw;}
+        .terminal-text {
+            color: #ff2222; font-family: 'Courier New', monospace;
+            font-size: 4.2vw; font-weight: bold; line-height: 1.2;
+            text-align: center; width: 90vw; white-space: pre-wrap;
+            text-shadow: 0 0 5px #ff2222; z-index: 2;
+        }
+        .small-eye-container { width: 90vw; text-align: center; margin-top: 4vh; z-index: 2;}
+        .small-eye-icon { color: #fff; font-size: 4vw; font-family: monospace; font-weight: bold;}
+        .small-red-text { color: #ff2222; font-size: 3.5vw; font-family: 'Courier New', monospace; margin-top: 0.5vh; letter-spacing: 0.5vw;}
+
+        /* --- ЭКРАН 3: Окно CatCrypt --- */
+        #stage3 { background: transparent; justify-content: center; padding: 10px; z-index: 20;}
+        
+        /* Неоновое окно как на фото */
+        .hacker-window {
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 20px #ff00ff, inset 0 0 10px #ff00ff;
+            background: rgba(0, 0, 0, 0.95);
+            width: 95vw;
+            max-width: 400px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hacker-header {
+            color: #ff00ff; font-family: 'Courier New', monospace;
+            text-align: center; font-size: 4vw; font-weight: bold;
+            margin-bottom: 15px; text-shadow: 0 0 5px #ff00ff;
+            line-height: 1.2;
+        }
+
+        .warning-header {
+            background: #cc0000; color: #fff; width: 100%; text-align: center;
+            padding: 10px 0; font-size: 5vw; font-weight: bold;
+            box-shadow: 0 0 15px #ff0000; margin-bottom: 15px;
+        }
+
+        .ransom-text {
+            color: #fff; font-size: 3.8vw; text-align: center;
+            line-height: 1.4; font-family: Arial, sans-serif; margin-bottom: 10px;
+        }
+        .ransom-text span { color: #ff0000; font-weight: bold; font-size: 5vw; text-shadow: 0 0 10px #ff0000; }
+        
+        .contact-tg {
+            color: #00ffff; font-size: 4.5vw; font-weight: bold; text-decoration: none;
+            background: #111; border: 2px solid #00ffff; padding: 5px 15px; border-radius: 5px;
+            display: inline-block; margin-top: 5px; box-shadow: 0 0 10px #00ffff;
+        }
+
+        .my-signature {
+            color: #ff2222; font-size: 4.5vw; margin: 15px 0; font-family: monospace; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px #ff0000; z-index: 2;
+            animation: textGlitch 0.1s infinite;
+        }
+
+        .timer {
+            color: #ff0000; font-size: 6vw; font-weight: bold; margin-bottom: 10px;
+            font-family: monospace; text-shadow: 0 0 10px #ff0000; z-index: 2;
+        }
+
+        .input-box {
+            background: #fff; width: 80%; height: 6vh; margin-bottom: 10px;
+            border: none; color: #000; font-size: 5vw; text-align: center;
+            letter-spacing: 1vw; outline: none; font-family: monospace; border-radius: 5px; z-index: 2;
+        }
+        .numpad {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+            width: 90%; margin: 0 auto; z-index: 2;
+        }
+        .numpad button {
+            padding: 1.5vh 0; font-size: 5vw; background: #d4d4d4;
+            border: 1px solid #999; color: #000; font-family: sans-serif; border-radius: 5px;
+            touch-action: manipulation;
+        }
+        .numpad button:active { background: #aaa; }
+        
+        .action-btns { width: 90%; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 2;}
+        .action-btns button {
+            padding: 1.5vh 0; font-size: 4.5vw; border: 1px solid #999; color: #000;
+            font-family: sans-serif; border-radius: 5px; touch-action: manipulation;
+        }
+        .btn-clear { background: #d4d4d4; }
+        .btn-unlock { background: #00cc00; color: #000; font-weight: bold;}
+        .btn-unlock:active { background: #009900; }
+
+        #escape-btn {
+            position: absolute; bottom: 5px; width: 100%; text-align: center;
+            color: #555; font-size: 3vw; cursor: pointer; padding: 5px; z-index: 2;
+        }
+
+        #success { background: #000; color: #00ff00; font-size: 6vw; font-family: monospace; text-align: center; z-index: 30;}
+        #success div { margin-bottom: 20px; }
+
+        @keyframes glitch {
+            0% { transform: scaleY(1.8) scaleX(0.9) translate(0); }
+            20% { transform: scaleY(1.8) scaleX(0.9) translate(-3px, 3px); }
+            40% { transform: scaleY(1.8) scaleX(0.9) translate(3px, -3px); }
+            60% { transform: scaleY(1.8) scaleX(0.9) translate(-3px, -3px); }
+            80% { transform: scaleY(1.8) scaleX(0.9) translate(3px, 3px); }
+            100% { transform: scaleY(1.8) scaleX(0.9) translate(0); }
+        }
+        @keyframes textGlitch {
+            0% { transform: translate(0); }
+            50% { transform: translate(-2px, 1px); }
+            100% { transform: translate(2px, -1px); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ОГРОМНАЯ ФУРРИ (Теперь нормального размера на фоне) -->
+    <img src="https://i.pinimg.com/736x/63/44/35/634435d57a4867b9c9e8200b45c17429.jpg" class="furry-bg" alt="Furry">
+
+    <!-- ЭКРАН 1 -->
+    <div id="stage1" class="screen active">
+        <svg class="svg-eye" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 50 5 Q 90 15 95 50 Q 90 85 50 95 Q 10 85 5 50 Q 10 15 50 5 Z" fill="#222" stroke="#eee" stroke-width="3" />
+            <path d="M 50 15 Q 80 20 85 50 Q 80 80 50 85 Q 20 80 15 50 Q 20 20 50 15 Z" fill="#111" stroke="#444" stroke-width="1" />
+            <ellipse cx="50" cy="50" rx="12" ry="25" fill="#000" />
+            <ellipse cx="50" cy="50" rx="2" ry="5" fill="#fff" />
+            <path d="M 50 85 L 60 105 L 40 105 Z" fill="#444" />
+        </svg>
+        <div class="glitch-text-1">RVVZ ВИДИТ ТЕБЯ</div>
+    </div>
+
+    <!-- ЭКРАН 2 -->
+    <div id="stage2" class="screen">
+        <div class="terminal-text" id="terminal"></div>
+        <div class="small-eye-container">
+            <div class="small-eye-icon">👁</div>
+            <div class="small-red-text">RVVZ ВИДИТ ТЕБЯ</div>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 3 (Окно как на фото) -->
+    <div id="stage3" class="screen">
+        
+        <div class="hacker-window">
+            <!-- Заголовок как на втором фото -->
+            <div class="hacker-header">
+                Catcrypt source code:<br>
+                @clan_aq<br>
+                @LuaRuntime<br>
+                free
+            </div>
+
+            <div class="warning-header">WINDOWS ЗАБЛОКИРОВАН</div>
+            
+            <div class="ransom-text">
+                Ваша система зашифрована.<br>
+                Чтобы получить доступ, вам нужно заплатить<br>
+                <span>1000 рублей</span><br>
+                Обратитесь к администратору: <br>
+                <a href="https://t.me/ceebw" target="_blank" class="contact-tg">@ceebw</a>
+            </div>
+
+            <!-- Твоя красная надпись -->
+            <div class="my-signature">RVVZ ВИДИТ ТЕБЯ</div>
+
+            <div class="timer" id="timer">01:59:59</div>
+
+            <input type="text" id="pin-display" class="input-box" readonly>
+            
+            <div class="numpad" id="numpad">
+                <button onclick="press('1')">1</button>
+                <button onclick="press('2')">2</button>
+                <button onclick="press('3')">3</button>
+                <button onclick="press('4')">4</button>
+                <button onclick="press('5')">5</button>
+                <button onclick="press('6')">6</button>
+                <button onclick="press('7')">7</button>
+                <button onclick="press('8')">8</button>
+                <button onclick="press('9')">9</button>
+                <button style="visibility: hidden;"></button>
+                <button onclick="press('0')">0</button>
+                <button style="visibility: hidden;"></button>
+            </div>
+
+            <div class="action-btns">
+                <button class="btn-clear" onclick="clearPin()">ОЧИСТИТЬ</button>
+                <button class="btn-unlock" onclick="checkPin()">РАЗБЛОКИРОВАТЬ</button>
+            </div>
+        </div>
+
+        <div id="escape-btn">[ Нажмите здесь, чтобы закрыть ]</div>
+    </div>
+
+    <!-- ЭКРАН УСПЕХА -->
+    <div id="success" class="screen">
+        <div style="font-size: 15vw;">✅</div>
+        <div>ДОСТУП РАЗРЕШЕН</div>
+    </div>
+
+    <script>
+        const MY_CUSTOM_SOUND = "https://files.catbox.moe/3x2sfm.mp3";
+        const UNLOCK_CODE = "1234"; 
+        
+        let currentPin = "";
+        let audioCtx;
+        let customAudio = null;
+        let isUnlocked = false;
+
+        if (MY_CUSTOM_SOUND !== "") {
+            customAudio = new Audio(MY_CUSTOM_SOUND);
+            customAudio.loop = true;
+        }
+
+        // Блокировка кнопки Назад и выхода
+        window.addEventListener('beforeunload', function (e) {
+            if (!isUnlocked) {
+                e.preventDefault();
+                e.returnValue = ''; 
+            }
+        });
+
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            if (!isUnlocked) {
+                history.go(1); 
+            }
+        };
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (customAudio) customAudio.play().catch(e => console.log("Ошибка звука."));
+        }
+
+        function playTone(freq, type, duration, vol) {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.value = freq;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playType() { playTone(1200 + Math.random()*800, 'square', 0.01, 0.03); }
+        function playClick() { playTone(1200, 'square', 0.05, 0.1); }
+        function playError() { playTone(150, 'sawtooth', 0.5, 0.3); }
+        function playSuccess() { playTone(800, 'sine', 0.2, 0.2); setTimeout(() => playTone(1200, 'sine', 0.4, 0.2), 150); }
+
+        const codeText = `Rooting Android...\nBoot error: 0x03527737\nBoot error: 0x0266712\nBoot error: 0x02897593\nBoot error: 0x01447812\nBoot error: 0x0150974\nBoot error: 0x03873700\nBoot error: 0x03803618\nMemory section at address 0x0424* is locked!\nService UxCryptor started.\n\n* RVVZ Android blocked!`;
+        
+        const termEl = document.getElementById("terminal");
+        let i = 0;
+
+        function typeCode() {
+            if (i < codeText.length) {
+                termEl.innerHTML += codeText.charAt(i);
+                if (codeText.charAt(i) !== '\n') playType();
+                i++;
+                setTimeout(typeCode, 10); 
+            } else {
+                setTimeout(() => {
+                    document.getElementById("stage2").classList.remove("active");
+                    document.getElementById("stage3").classList.add("active");
+                    startTimer();
+
+                    // Обрываем звук через 3 секунды
+                    if (customAudio) {
+                        setTimeout(() => { customAudio.pause(); }, 3000); 
+                    }
+                }, 1500);
+            }
+        }
+
+        document.body.addEventListener('click', () => {
+            if (document.getElementById("stage1").classList.contains("active")) {
+                initAudio();
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(()=>{});
+                }
+                
+                setTimeout(() => {
+                    document.getElementById("stage1").classList.remove("active");
+                    document.getElementById("stage2").classList.add("active");
+                    typeCode();
+                }, 2500); 
+            }
+        }, { once: true });
+
+        let timeLeft = 7199;
+        function startTimer() {
+            const timerEl = document.getElementById("timer");
+            setInterval(() => {
+                if (timeLeft <= 0) return;
+                timeLeft--;
+                let h = Math.floor(timeLeft / 3600);
+                let m = Math.floor((timeLeft % 3600) / 60);
+                let s = timeLeft % 60;
+                timerEl.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function press(num) {
+            if (currentPin.length < 4 && !isUnlocked) {
+                currentPin += num;
+                document.getElementById("pin-display").value = currentPin;
+                playClick();
+            }
+        }
+
+        function clearPin() {
+            currentPin = "";
+            document.getElementById("pin-display").value = "";
+            playTone(400, 'triangle', 0.1, 0.1);
+        }
+
+        function checkPin() {
+            if (currentPin === UNLOCK_CODE) {
+                isUnlocked = true; 
+                playSuccess();
+                if (customAudio) customAudio.pause();
+                document.getElementById("stage3").classList.remove("active");
+                document.getElementById("success").classList.add("active");
+                if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+
+                setTimeout(() => {
+                    window.close(); 
+                    setTimeout(() => {
+                        document.body.innerHTML = "<div style='color:white; font-family:sans-serif; text-align:center; margin-top:40vh;'><h1>СИСТЕМА РАЗБЛОКИРОВАНА</h1><p>Вы можете закрыть эту вкладку.</p></div>";
+                    }, 200);
+                }, 1500);
+            } else {
+                playError();
+                const box = document.getElementById("pin-display");
+                box.style.background = "#ffcccc";
+                setTimeout(() => {
+                    box.style.background = "#fff";
+                    clearPin();
+                }, 500);
+            }
+        }
+
+        document.getElementById("escape-btn").addEventListener('click', () => {
+            isUnlocked = true;
+            if (customAudio) customAudio.pause();
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(()=>{});
+            }
+            alert("Это была просто шутка! Вирус фейковый.");
+            window.close(); 
+        });
+    </script>
+</body>
+</html>
